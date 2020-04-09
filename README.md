@@ -6,7 +6,7 @@
 
 ## School project:
 
-Université de Technologie de Compiègne (UTC) France
+* Université de Technologie de Compiègne (UTC) France
 
 ## courses: 
 
