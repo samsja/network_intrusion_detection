@@ -2,7 +2,8 @@
 
 ## Data:
 
-* network_intrusion_detection : https://www.kaggle.com/sampadab17/network-intrusion-detection
+* network_intrusion_detection : http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html
+
 
 ## School project:
 
