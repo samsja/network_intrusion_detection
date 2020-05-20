@@ -8,6 +8,7 @@ from src.utils import read_lab_from_file
 from src.utils import normalize_features
 from src.utils import standardize_features
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 
 pd.set_option('display.max_columns', 500)  # 最大列数
@@ -29,6 +30,7 @@ data['class'] = np.where(data['type_of_attack'] == 'normal', 'normal', 'attack')
 data.info()
 print("data: {} rows and {} columns".format(data.shape[0], data.shape[1]))
 data.describe()
+
 data.duplicated()
 data.drop_duplicates()
 
@@ -50,8 +52,8 @@ data_std = data_std.sort_values(ascending=True)
 data_std
 col_dropped = ["is_host_login", "num_outbound_cmds"]
 
-# %% Corrélation
-plot_correlation_matrix(data, graphWidth=30)
+# Corrélation
+# plot_correlation_matrix(data, graphWidth=30)
 
 corr_matrix = data.corr().abs()
 mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
@@ -69,7 +71,7 @@ testdata_reduced = testdata_reduced.drop('name_of_attack', axis=1)
 
 
 
-# %% 8. One Hot Encoding for categorical
+# %% 6. One Hot Encoding for categorical
 # Training set
 print('Training set:')
 for col_name in data_reduced.columns:
@@ -151,12 +153,18 @@ for col in difference_test_data:
 data_dummy.shape
 
 # Ajouter encoded categorical dataframe à dataframe orignal
-newdata = data_reduced.join(data_dummy)
+value_class = data_reduced['class']
+X_data_reduced = data_reduced.drop('class', axis=1)
+newdata = X_data_reduced.join(data_dummy)
+newdata.insert(0,'class', value_class)
 newdata.drop('flag', axis=1, inplace=True)
 newdata.drop('protocol_type', axis=1, inplace=True)
 newdata.drop('service', axis=1, inplace=True)
 # test data
-newdata_test = testdata_reduced.join(test_dummy)
+value_class_test = testdata_reduced['class']
+X_testdata_reduced = testdata_reduced.drop('class', axis=1)
+newdata_test = X_testdata_reduced.join(test_dummy)
+newdata_test.insert(0,'class', value_class_test)
 newdata_test.drop('flag', axis=1, inplace=True)
 newdata_test.drop('protocol_type', axis=1, inplace=True)
 newdata_test.drop('service', axis=1, inplace=True)
@@ -164,23 +172,20 @@ print(newdata.shape)
 print(newdata_test.shape)
 
 
-
-
-
-
-# %% 6. Séparation de Training set et Test set (Validation set)
-X_data = data_reduced.drop(["class"], axis=1)
-Y_data = data_reduced["class"]
-
+# %% 7. Séparation de Training set et Test set (Validation set)
+X_data = newdata.drop(["class"], axis=1)
+Y_data = newdata["class"]
 X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, train_size=0.9, random_state=42)
-# %%
+
 print("shape of X_train set : {} rows, {} columns".format(X_train.shape[0], X_train.shape[1]))
 print("shape of X_test set : {} rows, {} columns".format(X_test.shape[0], X_test.shape[1]))
 print("length of Y_train {}, and Y_test {}".format(len(Y_train), len(Y_test)))
 
+X_train.info()
 
-# %% 7. Scaling We can choose either normalisation or standardization to scale the data according to different
+# %% 8. Scaling We can choose either normalisation or standardization to scale the data according to different
 # algorithm and the distribution of data
-X_train_scaled, X_test_scaled = standardize_features(X_train, X_test)
-X_train_scaled.describe()
 
+X_train_scaled, X_test_scaled = standardize_features(X_train, X_test)
+print(X_train_scaled.std(axis=0))
+print(X_test_scaled.std(axis=0))
