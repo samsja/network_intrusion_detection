@@ -2,14 +2,18 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from src.utils import plot_correlation_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+
 from src.utils import read_column_from_file
 from src.utils import read_lab_from_file
 from src.utils import normalize_features
 from src.utils import standardize_features
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-import seaborn as sns
+from src.utils import plot_correlation_matrix
+
 
 pd.set_option('display.max_columns', 500)  # 最大列数
 
@@ -24,12 +28,13 @@ attack_type = read_lab_from_file(path)
 # %% 3. Récupérer les données
 data = pd.read_csv("./data/kddcup.data_10_percent.csv", sep=",", names=col_name)
 testdata = pd.read_csv("./data/corrected.csv", names=col_name)
+
 # %%
 data['type_of_attack'] = data.name_of_attack.apply(lambda r: attack_type[r[:-1]])
 data['class'] = np.where(data['type_of_attack'] == 'normal', 'normal', 'attack')
-data.info()
+# data.info()
 print("data: {} rows and {} columns".format(data.shape[0], data.shape[1]))
-data.describe()
+# data.describe()
 
 data.duplicated()
 data.drop_duplicates()
@@ -40,6 +45,7 @@ print("test data: {} rows and {} columns".format(testdata.shape[0], testdata.sha
 testdata.describe()
 testdata.duplicated()
 testdata.drop_duplicates()
+
 # %% 4. Search the missing value
 data.isnull().any()
 testdata.isnull().any
@@ -49,7 +55,6 @@ testdata.isnull().any
 # Nous allons d'abord supprimer les variables qui ont des valeurs constantes
 data_std = data.std()
 data_std = data_std.sort_values(ascending=True)
-data_std
 col_dropped = ["is_host_login", "num_outbound_cmds"]
 
 # Corrélation
@@ -68,7 +73,6 @@ data_reduced = data.drop(col_dropped+col_supp, axis=1)
 # So we only have to keep the column "class" and drop the other two "name_of_attack" and "type_of_attack"
 testdata_reduced = testdata.drop(col_dropped, axis=1)
 testdata_reduced = testdata_reduced.drop('name_of_attack', axis=1)
-
 
 
 # %% 6. One Hot Encoding for categorical
@@ -116,8 +120,6 @@ unique_service2_test = [string2 + x for x in unique_service_test]
 test_dum_cols = unique_protocol2 + unique_service2_test + unique_flag2
 
 # Transformer les nominales features à entier en utilisant LabelEncoder()
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
 data_categorical_values_int = data_categorical_values.apply(LabelEncoder().fit_transform)
 print(data_categorical_values_int.head())
 # test set
@@ -181,7 +183,16 @@ print("shape of X_train set : {} rows, {} columns".format(X_train.shape[0], X_tr
 print("shape of X_test set : {} rows, {} columns".format(X_test.shape[0], X_test.shape[1]))
 print("length of Y_train {}, and Y_test {}".format(len(Y_train), len(Y_test)))
 
+# shape of X_train set : 444618 rows, 107 columns
+# shape of X_test set : 49403 rows, 107 columns
+# length of Y_train 444618, and Y_test 49403
+
 X_train.info()
+# <class 'pandas.core.frame.DataFrame'>
+# Int64Index: 444618 entries, 139564 to 121958
+# Columns: 107 entries, duration to service_icmp
+# dtypes: float64(89), int64(18)
+# memory usage: 366.4 MB
 
 # %% 8. Scaling We can choose either normalisation or standardization to scale the data according to different
 # algorithm and the distribution of data
@@ -189,3 +200,7 @@ X_train.info()
 X_train_scaled, X_test_scaled = standardize_features(X_train, X_test)
 print(X_train_scaled.std(axis=0))
 print(X_test_scaled.std(axis=0))
+
+
+
+
