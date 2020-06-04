@@ -3,49 +3,41 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-from src.pretraitement_fonc import pretraitement
+from sklearn import svm
 from sklearn.decomposition import PCA
-from src.pretraitement_fonc import data_formated
-from src.pretraitement_fonc import remove_variable
-from src.pretraitement_fonc import one_hot_encoding
-from src.pretraitement_fonc import seperate_train_test
-from src.utils import standardize_features
+from mlxtend.plotting import plot_decision_regions
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report, confusion_matrix
 
-from src.utils import add_decision_boundary
-from src.utils import read_column_from_file
-from src.utils import read_lab_from_file
-from src.utils import plot_clustering
+from src.pretraitement_reduit import X_train_scaled, X_train, Y_train, X_test, X_test_scaled, Y_test,\
+    newdata, newdata_test
+from src.utils import read_column_from_file, read_lab_from_file,normalize_features,\
+    standardize_features, plot_correlation_matrix, add_decision_boundary, \
+    read_column_from_file, read_lab_from_file, plot_clustering
 
 import src.knn_cross_validation as kcv
 import src.knn_validation as kv
 import src.nearest_prototypes as nrp
 
-path = "./data/kddcup.names"
-col_name = read_column_from_file(path)
+# path = "./data/kddcup.names"
+# col_name = read_column_from_file(path)
+#
+# path = "./data/training_attack_types"
+# attack_type = read_lab_from_file(path)
+#
+# data = pd.read_csv("./data/kddcup.data_10_percent.csv", sep=",", names=col_name)
+# testdata = pd.read_csv("./data/corrected.csv", names=col_name)
+# data, testdata = data_formated(attack_type, data, testdata)
+# data, testdata = remove_variable(data, testdata)
+# data, testdata = one_hot_encoding(data, testdata)
+# X_train, Y_train, X_test, Y_test = seperate_train_test(data)
+# X_train_scaled, X_test_scaled = standardize_features(X_train, X_test)
+# X_train_10, Y_train_, X_test, Y_test = seperate_train_test(data)
 
-path = "./data/training_attack_types"
-attack_type = read_lab_from_file(path)
-
-data = pd.read_csv("./data/kddcup.data_10_percent.csv", sep=",", names=col_name)
-testdata = pd.read_csv("./data/corrected.csv", names=col_name)
-
-data, testdata = data_formated(attack_type, data, testdata)
-data, testdata = remove_variable(data, testdata)
-data, testdata = one_hot_encoding(data, testdata)
-X_train, Y_train, X_test, Y_test = seperate_train_test(data)
-
-X_train_scaled, X_test_scaled = standardize_features(X_train, X_test)
 
 # %%
-X_train_10, Y_train_, X_test, Y_test = seperate_train_test(data)
-
-
 
 # PCA
-
-
 cls = PCA(n_components=5)
 pcs_X_train = cls.fit_transform(X_train_scaled)
 cls.explained_variance_ratio_
