@@ -31,6 +31,7 @@ testdata = pd.read_csv("./data/corrected.csv", names=col_name)
 
 # %%
 data['type_of_attack'] = data.name_of_attack.apply(lambda r: attack_type[r[:-1]])
+Y_attackType = data['type_of_attack']
 data['class'] = np.where(data['type_of_attack'] == 'normal', 'normal', 'attack')
 # data.info()
 print("data: {} rows and {} columns".format(data.shape[0], data.shape[1]))
@@ -167,6 +168,7 @@ value_class_test = testdata_reduced['class']
 X_testdata_reduced = testdata_reduced.drop('class', axis=1)
 newdata_test = X_testdata_reduced.join(test_dummy)
 newdata_test.insert(0,'class', value_class_test)
+newdata.insert(0,'type_of_attack', Y_attackType)
 newdata_test.drop('flag', axis=1, inplace=True)
 newdata_test.drop('protocol_type', axis=1, inplace=True)
 newdata_test.drop('service', axis=1, inplace=True)
@@ -177,7 +179,12 @@ print(newdata_test.shape)
 # %% 7. Séparation de Training set et Test set (Validation set)
 X_data = newdata.drop(["class"], axis=1)
 Y_data = newdata["class"]
+
 X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, train_size=0.9, random_state=42)
+Y_train_typeAttack = X_train['type_of_attack']
+X_train = X_train.drop('type_of_attack', axis=1)
+Y_test_typeAttack = X_test['type_of_attack']
+X_test = X_test.drop('type_of_attack', axis=1)
 
 print("shape of X_train set : {} rows, {} columns".format(X_train.shape[0], X_train.shape[1]))
 print("shape of X_test set : {} rows, {} columns".format(X_test.shape[0], X_test.shape[1]))
