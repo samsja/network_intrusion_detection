@@ -41,6 +41,7 @@ def remove_variable(data, testdata):
     col_supp = ["name_of_attack", "type_of_attack"]
     data = data.drop(col_dropped + col_supp, axis=1)
 
+
     testdata = testdata.drop(col_dropped, axis=1)
     testdata = testdata.drop('name_of_attack', axis=1)
 
